@@ -33,9 +33,9 @@ El proyecto utiliza una arquitectura de microservicios contenerizados para garan
 # Pasos para desplegar:
 1. Asegúrate de estar en la carpeta raíz del proyecto: `~/DEVSEC/fortress-shadow-ai`.
 2. Ejecuta el comando de construcción y levantamiento:
-   ```bash
+   ``bash
    sudo docker-compose up --build -d
-
+   
 ##💻 3. Acceso al Chat (Interfaz de Usuario)
 Una vez que el contenedor nexus-ai-service esté en estado Started, el sistema estará listo para recibir peticiones.
 
