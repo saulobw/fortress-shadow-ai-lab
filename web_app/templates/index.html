@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus AI | Enterprise Assistant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        body { background-color: #343541; color: #ececf1; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .sidebar { background-color: #202123; height: 100vh; padding: 20px; border-right: 1px solid #4d4d4f; }
+        .chat-container { height: 85vh; overflow-y: auto; padding: 40px; scroll-behavior: smooth; }
+        .input-area { position: fixed; bottom: 0; width: 75%; background-color: #343541; padding: 30px; border-top: 1px solid #5d5d5d; }
+        .message-box { max-width: 800px; margin: 0 auto; padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 15px; }
+        .user-msg { background-color: #343541; }
+        .ai-msg { background-color: #444654; border: 1px solid #565869; }
+        .avatar { width: 35px; height: 35px; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+        .user-avatar { background-color: #5436DA; }
+        .ai-avatar { background-color: #19C37D; }
+        .system-badge { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: #8e8ea0; margin-bottom: 5px; display: block;}
+        
+        /* Efecto de carga */
+        .typing-indicator span { display: inline-block; width: 6px; height: 6px; background-color: #fff; border-radius: 50%; animation: typing 1s infinite; margin: 0 2px; }
+        @keyframes typing { 0% { opacity: 0.3; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } 100% { opacity: 0.3; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2 sidebar d-none d-md-block">
+            <h4 class="mb-4"><i class="fas fa-brain"></i> Nexus AI</h4>
+            <button class="btn btn-outline-light w-100 mb-3 text-start"><i class="fas fa-plus"></i> Nuevo Chat</button>
+            <hr>
+            <small class="text-muted">HISTORIAL</small>
+            <div class="mt-3">
+                <p class="text-truncate"><i class="far fa-comment-alt"></i> Análisis Q3...</p>
+                <p class="text-truncate"><i class="far fa-comment-alt"></i> Código Python...</p>
+            </div>
+            <div style="position: absolute; bottom: 20px;">
+                <p class="mb-1"><i class="fas fa-user-shield"></i> Usuario: <strong>DevTeam</strong></p>
+                <small class="text-warning"><i class="fas fa-lock"></i> Conexión Interna</small>
+            </div>
+        </div>
+
+        <div class="col-md-10">
+            <div class="chat-container" id="chatBox">
+                <div class="message-box ai-msg">
+                    <div class="avatar ai-avatar"><i class="fas fa-robot"></i></div>
+                    <div>
+                        <span class="system-badge">Nexus AI v2.4 (Internal Beta)</span>
+                        <p>Hola. Soy el asistente de IA interno de Fortress. <br>
+                        Estoy optimizado para ayudar con código, resúmenes de reuniones y análisis de datos.</p>
+                        <p class="text-warning" style="font-size: 0.9em;">⚠ Nota: Esta es una versión Beta. Los datos se procesan en servidores externos para mejorar el modelo.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <div class="input-group">
+                    <input type="text" id="userInput" class="form-control bg-dark text-light border-secondary" placeholder="Envía un mensaje a Nexus AI..." style="padding: 15px;">
+                    <button class="btn btn-success" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+                </div>
+                <small class="text-muted mt-2 d-block text-center">Nexus AI puede producir información inexacta.</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function sendMessage() {
+        const input = document.getElementById('userInput');
+        const chatBox = document.getElementById('chatBox');
+        const text = input.value;
+        if (!text) return;
+
+        // 1. Renderizar mensaje del usuario
+        chatBox.innerHTML += `
+            <div class="message-box user-msg">
+                <div class="avatar user-avatar"><i class="fas fa-user"></i></div>
+                <div><p>${text}</p></div>
+            </div>
+        `;
+        input.value = '';
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        // 2. Simular "Escribiendo..."
+        const loadingId = 'loading-' + Date.now();
+        chatBox.innerHTML += `
+            <div class="message-box ai-msg" id="${loadingId}">
+                <div class="avatar ai-avatar"><i class="fas fa-robot"></i></div>
+                <div class="typing-indicator"><span></span><span></span><span></span></div>
+            </div>
+        `;
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        // 3. Enviar al Backend (Fetch API)
+        try {
+            const response = await fetch('/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text })
+            });
+            const data = await response.json();
+
+            // 4. Reemplazar carga con respuesta real
+            document.getElementById(loadingId).remove();
+            chatBox.innerHTML += `
+                <div class="message-box ai-msg">
+                    <div class="avatar ai-avatar"><i class="fas fa-robot"></i></div>
+                    <div><span class="system-badge">Nexus AI</span><p>${data.response}</p></div>
+                </div>
+            `;
+        } catch (error) {
+            console.error('Error:', error);
+        }
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+    
+    // Permitir Enter para enviar
+    document.getElementById("userInput").addEventListener("keyup", function(event) {
+        if (event.key === "Enter") { sendMessage(); }
+    });
+</script>
+
+</body>
+</html>

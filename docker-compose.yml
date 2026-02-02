@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  nexus-ai:
+    build: ./web_app
+    container_name: nexus-ai-service
+    ports:
+      - "5001:5000"
+    volumes:
+      - ./logs:/app/logs
+    restart: always

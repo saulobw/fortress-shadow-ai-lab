@@ -1,0 +1,11 @@
+# Ignorar logs con datos robados (Seguridad)
+logs/
+*.json
+*.log
+
+# Ignorar archivos temporales de Python
+__pycache__/
+*.pyc
+
+# Ignorar archivos de sistema
+.DS_Store
